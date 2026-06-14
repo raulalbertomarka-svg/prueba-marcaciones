@@ -554,18 +554,25 @@ function updateLunchButtons() {
 }
 
 async function doLunch(tipo) {
-  const now=new Date();
-  // Formato simple sin AM/PM para evitar problemas de encoding
-  const hora = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-  const fecha = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  try {
+    if (!S.user) { toast('Sesión no iniciada','error'); return; }
+    const now=new Date();
+    const hora = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    const fecha = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
 
-  S.lunch.log.push({tipo,hora,ts:now.getTime()});
-  S.lunch.enAlmuerzo=(tipo==='entrada');
-  saveSession(); updateLunchButtons(); renderLunchLog();
+    S.lunch.log.push({tipo,hora,ts:now.getTime()});
+    S.lunch.enAlmuerzo=(tipo==='entrada');
+    saveSession(); updateLunchButtons(); renderLunchLog();
 
-  const pdv = S.active ? S.active.pdv : '';
-  sendLunch({accion:'fichaje',cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:pdv,tipo,hora,fecha,timestamp:fecha+' '+hora});
-  toast(tipo==='entrada'?'🍽️ Entrada a almuerzo registrada':'💼 Regreso del almuerzo registrado','success');
+    const pdv = S.active ? S.active.pdv : '';
+    const url = APPS_SCRIPT_URL+'?accion=fichaje&cedula='+encodeURIComponent(S.user.cedula)+'&nombre='+encodeURIComponent(S.user.nombre)+'&marca='+encodeURIComponent(S.user.marca)+'&pdv='+encodeURIComponent(pdv)+'&tipo='+tipo+'&hora='+hora+'&fecha='+fecha+'&timestamp='+fecha+'%20'+hora;
+    console.log('doLunch URL:', url);
+    fetch(url, {method:'GET', mode:'no-cors'}).catch(e=>console.error('fetch error:',e));
+    toast(tipo==='entrada'?'🍽️ Entrada a almuerzo registrada':'💼 Regreso del almuerzo registrado','success');
+  } catch(e) {
+    console.error('doLunch error:', e);
+    toast('Error: '+e.message,'error');
+  }
 }
 
 function renderLunchLog() {
