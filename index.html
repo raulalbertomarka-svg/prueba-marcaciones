@@ -559,7 +559,16 @@ async function doLunch(tipo) {
   S.lunch.enAlmuerzo=(tipo==='entrada');
   saveSession(); updateLunchButtons(); renderLunchLog();
   const pdv = S.active ? S.active.pdv : '';
-  sendLunch({accion:'fichaje',cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:pdv,tipo,hora,fecha,timestamp:now.toLocaleString('es-PY')});
+  const params = {accion:'fichaje',cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:pdv,tipo,hora,fecha,timestamp:now.toLocaleString('es-PY')};
+  console.log('sendLunch params:', JSON.stringify(params));
+  console.log('URL:', APPS_SCRIPT_URL+'?'+new URLSearchParams(params));
+  try {
+    const r = await fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams(params),{method:'GET',mode:'no-cors',redirect:'follow'});
+    console.log('sendLunch ok, status:', r.status, r.type);
+  } catch(err) {
+    console.error('sendLunch error:', err);
+    toast('Error: '+err.message, 'error');
+  }
   toast(tipo==='entrada'?'🍽️ Entrada a almuerzo registrada':'💼 Regreso del almuerzo registrado','success');
 }
 
