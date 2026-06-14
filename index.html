@@ -234,7 +234,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     </div>
 
     <!-- FICHAJE DE ALMUERZO — solo visible con check-in activo -->
-    <div class="lunch-section" id="lunch-section" style="display:none">
+    <div class="lunch-section" id="lunch-section">
       <div class="lunch-header">
         <div class="lunch-title">🍽️ Almuerzo</div>
         <div class="lunch-status-pill trabajando" id="lunch-pill">Trabajando</div>
@@ -482,9 +482,8 @@ function updateButtons() {
     searchInp.style.pointerEvents=''; searchInp.style.opacity='';
   }
 
-  // Sección almuerzo: visible solo con check-in activo
-  document.getElementById('lunch-section').style.display = hasActive ? 'block' : 'none';
-  if (hasActive) updateLunchButtons();
+  // Sección almuerzo: siempre visible
+  updateLunchButtons();
 }
 
 function updateStatus() {
