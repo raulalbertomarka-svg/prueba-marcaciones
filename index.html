@@ -240,11 +240,11 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
         <div class="lunch-status-pill trabajando" id="lunch-pill">Trabajando</div>
       </div>
       <div class="lunch-btn-row">
-        <button class="btn-lunch btn-lunch-entrada" id="btn-lunch-entrada" onclick="doLunch('entrada')">
+        <button class="btn-lunch btn-lunch-entrada" id="btn-lunch-entrada" onclick="event.stopPropagation();doLunch('entrada')">
           <span class="btn-lunch-icon">🍽️</span>
           ENTRADA
         </button>
-        <button class="btn-lunch btn-lunch-salida disabled" id="btn-lunch-salida" onclick="doLunch('salida')">
+        <button class="btn-lunch btn-lunch-salida disabled" id="btn-lunch-salida" onclick="event.stopPropagation();doLunch('salida')">
           <span class="btn-lunch-icon">💼</span>
           SALIDA
         </button>
@@ -553,9 +553,13 @@ function updateLunchButtons() {
   }
 }
 
+let _lunchBusy = false;
 async function doLunch(tipo) {
+  if (_lunchBusy) return;
+  _lunchBusy = true;
+  setTimeout(function(){ _lunchBusy = false; }, 3000);
   try {
-    if (!S.user) { toast('Sesión no iniciada','error'); return; }
+    if (!S.user) { toast('Sesión no iniciada','error'); _lunchBusy=false; return; }
     const now=new Date();
     const hora = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
     const fecha = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
@@ -595,7 +599,21 @@ async function send(data) {
 }
 
 function sendLunch(data) {
-  fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams(data),{method:'GET',mode:'no-cors',redirect:'follow'}).catch(()=>{});
+  var url = APPS_SCRIPT_URL;
+  var first = true;
+  for (var k in data) {
+    url += (first ? '?' : '&') + k + '=' + encodeURIComponent(data[k]);
+    first = false;
+  }
+  console.log('sendLunch URL final:', url);
+  // Intentar con fetch primero, si falla usar Image
+  fetch(url, {method:'GET', mode:'no-cors'})
+    .then(function(){ console.log('fetch ok'); })
+    .catch(function(err){
+      console.log('fetch falló, usando Image:', err);
+      var img = new Image();
+      img.src = url;
+    });
 }
 
 /* ═══ HISTORIAL ═══ */
