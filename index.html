@@ -554,12 +554,12 @@ function updateLunchButtons() {
 }
 
 async function doLunch(tipo) {
-  if (!S.active) { toast('Hacé Check-in primero','warn'); return; }
   const now=new Date(), hora=fmtTime(now), fecha=fmtDate(now);
   S.lunch.log.push({tipo,hora,ts:now.getTime()});
   S.lunch.enAlmuerzo=(tipo==='entrada');
   saveSession(); updateLunchButtons(); renderLunchLog();
-  sendLunch({accion:'fichaje',cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:S.active.pdv,tipo,hora,fecha,timestamp:now.toLocaleString('es-PY')});
+  const pdv = S.active ? S.active.pdv : '';
+  sendLunch({accion:'fichaje',cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:pdv,tipo,hora,fecha,timestamp:now.toLocaleString('es-PY')});
   toast(tipo==='entrada'?'🍽️ Entrada a almuerzo registrada':'💼 Regreso del almuerzo registrado','success');
 }
 
