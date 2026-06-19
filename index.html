@@ -241,7 +241,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
       <div class="lunch-header">
         <div>
           <div class="lunch-title">🍽️ Almuerzo</div>
-          <div class="lunch-range">Horario: 11:50 a 13:45</div>
+          <div class="lunch-range">Horario: 11:00 a 14:30</div>
         </div>
         <div class="lunch-status-pill trabajando" id="lunch-pill">Trabajando</div>
       </div>
@@ -578,8 +578,8 @@ function updateLunchButtons() {
 }
 
 // Horario permitido de almuerzo
-const LUNCH_INICIO = { h: 11, m: 50  };  // 11:50
-const LUNCH_FIN    = { h: 13, m: 45 };  // 13:45
+const LUNCH_INICIO = { h: 11, m: 0  };  // 11:00
+const LUNCH_FIN    = { h: 14, m: 30 };  // 14:30
 
 function enHorarioAlmuerzo() {
   const now = new Date();
@@ -594,9 +594,16 @@ async function doLunch(tipo) {
 
   // Validar horario
   if (!enHorarioAlmuerzo()) {
+    const now = new Date();
+    const totalMin = now.getHours() * 60 + now.getMinutes();
+    const inicioMin = LUNCH_INICIO.h * 60 + LUNCH_INICIO.m;
     const ini = LUNCH_INICIO.h+':'+String(LUNCH_INICIO.m).padStart(2,'0');
     const fin = LUNCH_FIN.h+':'+String(LUNCH_FIN.m).padStart(2,'0');
-    toast('⏰ Horario de almuerzo: '+ini+' a '+fin+'hs','warn');
+    if (totalMin < inicioMin) {
+      toast('⏰ Todavía no es horario de almuerzo (desde las '+ini+')','warn');
+    } else {
+      toast('⏰ El horario de almuerzo ya finalizó (hasta las '+fin+')','warn');
+    }
     return;
   }
 
