@@ -241,7 +241,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
       <div class="lunch-header">
         <div>
           <div class="lunch-title">🍽️ Almuerzo</div>
-          <div class="lunch-range">Horario: 11:00 a 14:30</div>
+          <div class="lunch-range" id="lunch-range">Horario: —</div>
         </div>
         <div class="lunch-status-pill trabajando" id="lunch-pill">Trabajando</div>
       </div>
@@ -480,6 +480,10 @@ function showMain() {
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-main').classList.add('active');
   document.getElementById('app-header').classList.add('visible');
+  const iniTxt = LUNCH_INICIO.h+':'+String(LUNCH_INICIO.m).padStart(2,'0');
+  const finTxt = LUNCH_FIN.h+':'+String(LUNCH_FIN.m).padStart(2,'0');
+  const rangeEl = document.getElementById('lunch-range');
+  if (rangeEl) rangeEl.textContent = 'Horario: '+iniTxt+' a '+finTxt;
   document.getElementById('main-name').textContent=S.user.nombre;
   document.getElementById('main-ci').textContent='CI: '+S.user.cedula;
   document.getElementById('main-marca').textContent=S.user.marca;
